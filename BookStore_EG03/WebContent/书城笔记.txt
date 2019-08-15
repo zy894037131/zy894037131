@@ -1,0 +1,108 @@
+书城项目第二阶段的分析
+	需求：完成注册和登录功能
+
+饭店的架构：
+
+	 顾客-----服务员---厨师---采购--菜市场
+	 服务员：
+	 	负责直接和顾客打交道，将用户请求收集，交给厨师，调用厨师的方法
+	 	厨师完成需求之后将结果交给服务员，服务员将结果交给顾客
+	 厨师：
+	 	根据服务器传递的参数，让采购去购买原材料
+	 	再对原材料进行加工，加工完成return
+	好处：解耦，分工明确，出问题比较好定位
+	坏处：成本高，效率低
+	 	
+	 采购：
+	 	根据厨师的需求到菜市场购买原材料然后交给厨师
+	 	
+
+项目的架构：三层架构
+	表现层(web层，视图层，表示层...)：(用户能够直接访问的内容)Servlet、html......	
+	业务逻辑层(Service层)： java类，提供处理业务的方法
+	数据持久化层：Dao层(和数据库交互)只操作数据库，提供对数据库数据增删改查的方法	
+		项目中的Dao层因为需求经常发生变化,dao层通常面向接口编程，使用接口规范对表的操作
+	数据库
+		
+	
+开发流程：
+	1、数据库表[bookstore0706, bs_user]
+	2、对应一张表创建一个javabean[User]
+	3、导入数据库相关的jar包[mysqlconnection数据库驱动,c3p0数据库连接池jar包和配置文件，dbUtils工具类]
+	4、修改c3p0配置文件中的数据： 数据库名，账号密码
+	5、JDBCUtils工具类[提供获取数据库连接和释放连接的方法]
+	6、BaseDao[提供对数据库的基本操作，包括 增删改，查询一条记录，查询一个集合]
+	7、UserDao[提供对bs_user表的所有操作 ]
+			UserDao 接口  
+			UserDaoImpl 具体表操作的实现
+	8、完成注册功能
+		注册页面(regist.html)-->提交注册请求-->RegistServlet(收集用户的注册请求，调用userdao插入到数据库中)
+		-->如果插入成功重定向到注册成功页面(regist_success.html)
+		RegistServlet: 
+			修改form表单的 action提交的地址
+			修改页面中引入css样式和jquery文件的路径
+	9、完成登录功能
+		登录页面(login.html)-->提交登录请求-->LoginServlet(收集用户的登录请求，调用UserDao从数据库中获取用户)
+		-->如果查询对象不为null，成功，重定向到登录成功页面(login_success.html)
+		-->如果为null，失败，转发到登录页面让用户继续登录(login.html)
+		
+		LoginServlet:
+	10、对项目使用分层架构
+		添加业务逻辑层：service， 业务逻辑变化非常多，也是面向接口编程
+			UserService：约束对用户的操作的业务逻辑
+			UserServiceImpl：
+	表现层-->业务逻辑层-->持久化层-->数据库
+	
+书城项目的第三阶段
+	完成对项目的优化
+	》将html页面替换为jsp页面
+	》页面中相同的内容可以提取，通过include静态引入   base，	link，script
+	》用户登录失败和注册失败时，转发到登录或者注册页面时，没有错误提示
+	》用户注册失败时，转发到注册页面时，可以将用户输入的内容回显
+	》将一类操作封装到一个Servlet中，整合Servlet到UserServlet中
+	》我们经常获取参数封装为一个对象，如果参数过多，获取代码过多，提供一个工具类方法专门用来封装对象
+	1、拷贝一个新的项目 BookStore_EG03
+		修改工程名
+		修改-properties-web project settings-修改context root中的值和项目名一致
+	2、修改html页面为jsp页面
+		-先在html页面的首行添加jsp的声明
+		-再修改文件的后缀名为.jsp
+	3、提取页面中的相同内容，通过include指令引入
+		①-提取base标签，link，jquery引入
+		 -在每个页面中引入base.jsp
+		②-提取用户访问的页面的头部
+		 -在用户使用的页面中引入导航栏[cart,order,user]
+		③-提取管理员访问页面的头部
+		 -在管理员使用的页面中引入导航栏[manager]
+	4、修改提取页面中的页面后缀和路径[和base标签拼接]
+	5、修改Servlet中重定向和转发的文件后缀名
+	6、动态获取base标签的url地址[base.jsp页面中的base标签]
+	7、登录失败时，在转发到的login.jsp页面中给出登录失败的提示
+		用户在login.jsp页面输入账号密码
+		提交给LoginServlet，判断[如果登录失败，在request域中设置一个错误消息]
+		如果失败，转发到login.jsp页面[从request域中获取错误信息显示]
+		此时显示登录失败消息
+	8、注册失败时，转到到regist.jsp显示注册失败的提示
+	9、注册失败时，转到regist.jsp页面时用户填写的信息都重置了没有了
+		》我们希望注册失败时在转到注册页面时将用户填写的不重要信息都在页面上回显
+		》在regist.jsp中获取用户信息回显
+	10、模拟Service对Servlet整合
+		一个功能对应一个方法	
+		我们可以在login.jsp页面的表单中添加一个参数，只是为了告诉Servlet我这是登录请求
+		在regist.jsp表单中添加一个参数，为了告诉服务器是注册请求
+		参数name属性值一样method，value值不同
+		》提供一个UserServlet处理所有的和用户相关的请求【登录注册..】
+			提供一个登录和注册方法，在servlet中判断请求参数中的method的值调用不同的方法
+	11、使用反射，根据请求参数中的method的值来自动调用方法
+			》创建一个BaseServlet对HttpServlet进一步封装，项目中的其他的Servlet都继承BaseServlet
+				在Base中获取请求参数method值，自动调用子类中的方法
+				只有BaseServlet有doGet和doPost方法
+				所有的BaseS的子类不能有doGet和doPost
+	12、提供一个工具类方法 自动读取参数并封装为对象
+		使用BeanUtilsjar包
+	
+	
+	
+	
+	
+	
