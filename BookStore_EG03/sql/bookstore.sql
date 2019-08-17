@@ -15,7 +15,7 @@ CREATE TABLE bs_book (
 	img_path varchar(100)
 )
 create table bs_order(
-	id varchar(100) PRIMARY key,
+	id varchar(100) PRIMARY key, --主键
 	total_count Integer(11),
 	total_amount DOUBLE(11,2),
 	state INTEGER(2),
