@@ -22,7 +22,7 @@ create table bs_order(
 	order_time datetime,
 	user_id integer(11),
 	FOREIGN key(user_id) references bs_user(id)
-)
+);
 create table bs_orderitem(
 	id integer(11) PRIMARY key auto_increment,
 	title varchar(100),
