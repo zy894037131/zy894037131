@@ -24,7 +24,7 @@ create table bs_order(
 	FOREIGN key(user_id) references bs_user(id)
 );
 create table bs_orderitem(
-	id integer(11) PRIMARY key auto_increment,
+	id integer(11) PRIMARY key auto_increment, --自增主键
 	title varchar(100),
 	author varchar(100),
 	img_path varchar(100),
