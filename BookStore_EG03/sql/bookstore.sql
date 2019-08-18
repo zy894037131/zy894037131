@@ -6,7 +6,7 @@ create table bs_user(
 )
 
 CREATE TABLE bs_book (
-	id INTEGER (11) PRIMARY KEY auto_increment,
+	id INTEGER (11) PRIMARY KEY auto_increment, --bs_book自增主键
 	title varchar(100) not null,
 	authot varchar(100) not null,
 	price double(11,2) not null,
