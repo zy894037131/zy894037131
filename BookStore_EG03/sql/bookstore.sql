@@ -1,5 +1,5 @@
 create table bs_user(
-      id number(11) primary key ,
+      id number(11) primary key , --bs_user key
       username varchar2(100) not null unique,
       password varchar2(100) not null,
       email varchar2(100)
